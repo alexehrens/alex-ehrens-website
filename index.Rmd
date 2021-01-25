@@ -15,6 +15,4 @@ output:
 site: distill::distill_website
 ---
  
-I am a classically trained data scientist living in the San Francisco Bay Area. 
-Currently I work on the Oculus team at Facebook. I love talking about baseball, 
-true crime podcasts, and causal inference.
+I am a graduate student at the Bren School of Environmental Science & Management working towards a Master's in Environmental Science & Management (MESM) degree. I am specializing in Water Resources Management with a focus in Environmental Data Science.
