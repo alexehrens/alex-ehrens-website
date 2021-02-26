@@ -1,0 +1,13 @@
+---
+title: "Welcome"
+description: |
+  Welcome to my website's blog!
+author:
+  - name: Alex Ehrens
+date: 02-25-2021
+output:
+  distill::distill_article:
+    self_contained: false
+---
+
+Welcome to the blog on my website! 

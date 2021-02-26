@@ -1,0 +1,14 @@
+---
+title: "Portfolio"
+description: |
+  Examples of my coding skills
+---
+
+# Spatial Analysis with Rasters in R
+
+```{r setup,echo=FALSE, message=FALSE}
+
+knitr::include_graphics("cetacean_raster_plot.jpg")
+```
+
+**To see my code for producing this plot**, check out my [Github repository](https://github.com/alexehrens/esm244_asst3/tree/main/task2)

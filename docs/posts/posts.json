@@ -1,0 +1,19 @@
+[
+  {
+    "path": "posts/2021-02-06-welcome/",
+    "title": "Tidy Tuesday Week 6",
+    "description": "My spatial exploration of the global plastics pollution TidyTuesday dataset.",
+    "author": [
+      {
+        "name": "Alex Ehrens",
+        "url": {}
+      }
+    ],
+    "date": "2021-02-25",
+    "categories": [],
+    "contents": "\nI would like to present my submission for Tidy Tuesday (from 1/26), which was a dataset of global plastics pollution. I used the maptools package to get the “wrld_simpl” dataset with geometries for every country and then used sf to transform it into a spatial dataframe. I then joined this to the plastic pollution dataset by country name using this method from another Tidy Tuesday coder I noticed that I had to manually change some of the country names (like the U.S.) so that the datasets joined properly. Then for the coloring, I used the {wesanderson} package by karthik and found a color palette from The Life Aquatic with Steve Zissou. I didn’t like how the countries without plastics data wouldn’t show up on the map so I plotted the wrld_simpl country polygons in the background to fill out the map. I’m very glad with how this turned out!\nRead in Tidy Tuesday plastics data\n\n\nhide\n\ntuesdata <- tidytuesdayR::tt_load('2021-01-26')\n\n\n\n    Downloading file 1 of 1: `plastics.csv`\n\nhide\n\nplastics <- tuesdata$plastics\n\n\n\nSelect and filter plastics data to just get totals\n\n\nhide\n\nplastics_totals <- plastics %>% \n  select(country, parent_company, grand_total, volunteers) %>% \n  filter(parent_company == \"Grand Total\") %>% \n  filter(country != \"EMPTY\") %>% \n  filter(country != \"Taiwan_ Republic of China (ROC)\") %>% \n  filter(country != \"NIGERIA\") %>% \n  filter(country != \"Philippines\") # these 3 countries seem to be an outlier that is way too high\n\nplastics_totals$country[plastics_totals$country == \"ECUADOR\"] <- \"Ecuador\"\nplastics_totals$country[plastics_totals$country == \"United States of America\"] <- \"United States\"\nplastics_totals$country[plastics_totals$country == \"Cote D_ivoire\"] <- \"Cote d'Ivoire\"\nplastics_totals$country[plastics_totals$country == \"Vietnam\"] <- \"Viet Nam\"\n#plastics_totals$country[plastics_totals$country == \"NIGERIA\"] <- \"Nigeria\"\nplastics_totals$country[plastics_totals$country == \"Tanzania\"] <- \"United Republic of Tanzania\"\n#plastics_totals$country[plastics_totals$country == \"Taiwan_ Republic of China (ROC)\"] <- \"Taiwan\"\n\n\n\nRead in world polygons data\n\n\nhide\n\ndata(\"wrld_simpl\")\n\n\n\nJoin plastics data with world spatial dataset\n\n\nhide\n\nplastics_totals_spatial <- wrld_simpl %>% \n  st_as_sf() %>% \n  st_transform(crs = 4326) %>% \n  mutate(NAME = as.character(NAME)) %>% \n  left_join(plastics_totals, by = c(\"NAME\" = \"country\")) %>% \n  filter(is.na(grand_total) == FALSE)\n\n# make sure coordinate reference systems match\nworld_total <- wrld_simpl %>% \n  st_as_sf() %>% \n  st_transform(crs = 4326)\n\n\n\nMap total plastics production by country\n\n\nhide\n\npalette <- wes_palette(\"Zissou1\", type = \"continuous\")\n\nggplot() +\n  geom_sf(data = world_total,\n          aes(geometry = geometry)) +\n  geom_sf(data = plastics_totals_spatial,\n          aes(geometry = geometry, fill = grand_total)) +\n  scale_fill_gradientn(colors = palette) +\n  theme_minimal() +\n  labs(title = \"Global plastics pollution as told by The Life Aquatic\",\n       fill = \"Plastic pollution \\n(counts)\") +\n  theme(plot.title = element_text(hjust = 0.5),\n        legend.position = \"bottom\",\n        legend.direction = \"horizontal\",\n        legend.key.width = unit(2, \"cm\"))\n\n\n\n\n\n\n\n",
+    "preview": "posts/2021-02-06-welcome/post1_tidytuesday_plastics_files/figure-html5/unnamed-chunk-5-1.png",
+    "last_modified": "2021-02-25T16:54:21-08:00",
+    "input_file": {}
+  }
+]
