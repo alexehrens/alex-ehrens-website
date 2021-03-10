@@ -1,5 +1,6 @@
 name: "."
 title: "Alex Ehrens"
+theme: "alex.css"
 description: |
   Alex Ehrens
 output_dir: "docs"

@@ -1,0 +1,83 @@
+---
+title: "post2_GP_sensitivity_analysis"
+description: |
+  A short description of the post.
+author:
+  - name: Alex Ehrens
+    url: {}
+date: 03-09-2021
+output:
+  distill::distill_article:
+    self_contained: false
+    code_folding: hide
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+# attach packages
+library(raster) 
+library(tidyverse)
+library(here)
+library(sf)
+library(fasterize)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(rgeos)
+```
+
+```{r}
+# there are many rasters to read in, so want to stack them into one raster
+sa_files <- list.files(path = here("2021-03-09-post2gpsensitivityanalysis", "sensitivity_iterations"), pattern = "*tif", full.names = TRUE)
+
+sa_stack <- raster::stack(sa_files)
+
+# write raster stack
+writeRaster(sa_stack, filename = "sensitivity_analysis_stack.tif", options = "INTERLEAVE=BAND", overwrite = TRUE)
+```
+
+```{r}
+ # create a function to determine whether a species is present (value >0.6) or not in a given location
+is_present <- function(x, thresh = 4){
+  y <- ifelse(x >= thresh, 1, 0)
+  return(y)
+}
+
+# run the function using the stack of rasters
+sa_good <- calc(sa_stack, fun = is_present)
+
+earth <- ne_countries(scale = "medium", returnclass = "sf") %>% 
+  st_as_sf()
+
+# sum to find the total richness of species in each raster cell
+sa_total <- calc(sa_good, fun = sum, na.rm = TRUE) %>% 
+  projectRaster(crs = crs(earth))
+
+# exploratory plot of the cetacean species richness raster
+plot(sa_total)
+```
+
+```{r}
+# turn raster stack into data frame for plotting and mutate a column with the sum of present species
+sa_df <- rasterToPoints(sa_total) %>% 
+  as.data.frame()
+
+# set 0 values for sum to NA and then remove those cells so they don't show up on top of coastline map
+sa_df$layer[sa_df$layer <= 0] <- NA
+
+sa_df <- sa_df %>% 
+  na.omit(layer)
+
+st_crs(earth)
+st_crs(sa_total)
+
+ggplot() +
+  geom_sf(data = earth, fill = "white") +
+  coord_sf(xlim = c(-120.45,-119.715), ylim = c(36.8,37.18),
+           expand = 0) +
+  geom_tile(data = sa_df, aes(x = x, y = y, fill = layer)) +
+  scale_fill_gradientn(colors = c("firebrick", "orange", "gold", "lightgreen", "darkgreen")) +
+  theme_bw()
+
+```

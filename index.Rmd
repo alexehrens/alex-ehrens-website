@@ -4,14 +4,11 @@ image: "Alex_Ehrens_Bren_Photo.png"
 links:
   - label: LinkedIn
     url: "https://www.linkedin.com/in/alexehrens/"
-  - label: Twitter
-    url: "https://twitter.com/"
   - label: GitHub
     url: "https://github.com/alexehrens"
   - label: Email
     url: "mailto:alexehrens@ucsb.edu"
-output:
-  postcards::jolla
+output: postcards::jolla
 site: distill::distill_website
 ---
  
