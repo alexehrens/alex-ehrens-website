@@ -1,9 +1,0 @@
----
-title: "About"
-description: |
-  Some additional details about this site
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
-```
