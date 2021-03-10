@@ -1,10 +1,9 @@
 ---
-title: "post2_GP_sensitivity_analysis"
+title: "Flood Forward GP Sensitivity Analysis"
 description: |
-  A short description of the post.
+  The spatial results of a sensitivity analysis performed as part of a Bren School Master's Group Project called Flood Forward. These results show the best locations for siting multiple-benefit groundwater recharge projects with flood risk reduction and ecosystem enhancement benefits in Madera County, California.
 author:
   - name: Alex Ehrens
-    url: {}
 date: 03-09-2021
 output:
   distill::distill_article:
@@ -13,7 +12,7 @@ output:
 ---
 
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, warning=FALSE, message=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 
 # attach packages
@@ -29,15 +28,15 @@ library(rgeos)
 
 ```{r}
 # there are many rasters to read in, so want to stack them into one raster
-sa_files <- list.files(path = here("2021-03-09-post2gpsensitivityanalysis", "sensitivity_iterations"), pattern = "*tif", full.names = TRUE)
+sa_files <- list.files(path = "sensitivity_iterations", pattern = "*tif", full.names = TRUE)
 
 sa_stack <- raster::stack(sa_files)
 
 # write raster stack
-writeRaster(sa_stack, filename = "sensitivity_analysis_stack.tif", options = "INTERLEAVE=BAND", overwrite = TRUE)
+#writeRaster(sa_stack, filename = "sensitivity_analysis_stack.tif", options = "INTERLEAVE=BAND", overwrite = TRUE)
 ```
 
-```{r}
+```{r, cache=TRUE, results=FALSE}
  # create a function to determine whether a species is present (value >0.6) or not in a given location
 is_present <- function(x, thresh = 4){
   y <- ifelse(x >= thresh, 1, 0)
@@ -55,7 +54,7 @@ sa_total <- calc(sa_good, fun = sum, na.rm = TRUE) %>%
   projectRaster(crs = crs(earth))
 
 # exploratory plot of the cetacean species richness raster
-plot(sa_total)
+#plot(sa_total)
 ```
 
 ```{r}
@@ -69,8 +68,8 @@ sa_df$layer[sa_df$layer <= 0] <- NA
 sa_df <- sa_df %>% 
   na.omit(layer)
 
-st_crs(earth)
-st_crs(sa_total)
+#st_crs(earth)
+#t_crs(sa_total)
 
 ggplot() +
   geom_sf(data = earth, fill = "white") +
