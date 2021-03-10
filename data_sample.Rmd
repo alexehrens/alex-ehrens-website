@@ -1,0 +1,83 @@
+---
+title: "Data Analysis"
+description: |
+  An example of my data analysis and coding skills - performing a principal components analysis (PCA) for fast food nutrient content.
+author:
+  - name: Alex Ehrens
+date: "`r Sys.Date()`"
+output: 
+  distill::distill_article:
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+# attach packages
+library(tidyverse)
+library(here)
+library(janitor)
+library(ggfortify)
+library(stringr)
+```
+
+### Introduction to data and this analysis
+
+For this task, a principal components analysis (PCA) was performed using a dataset on food nutrient information from the United States Department of Agriculture (USDA)'s [FoodData Central](https://fdc.nal.usda.gov/index.html). This dataset contains detailed information on the nutrient content of a diverse variety of food items, providing a comprehensive reference for understanding the health impacts of America's food supply. The PCA conducted in this task focused on a subset of this data, which only included food items within the "fast foods" group and specifically those manufactured by 10 of the largest and most widely-known American fast food chains. For those food items, the nutrient components selected for analysis were those typically associated with the health impacts of foods, including calories, fats, sugars, carbohydrates, proteins, and fibers. This PCA will help assess the relationships between these nutritional variables for food items sold by major American fast food manufacturers.
+
+### PCA analysis
+
+#### Step 1 - Explore USDA food nutrient information dataset
+```{r}
+# read in data file, clean names, and view to explore dataset
+usda_nutrients <- read.csv(here("data_analysis_files", "usda_nutrients.csv")) %>% 
+  clean_names()
+
+# filter out only the "fast foods" food group, and filter again to pull out only food items from major manufacturers, but keep all columns to use as reference later
+fast_foods_nutrients <- usda_nutrients %>% 
+  filter(food_group == "Fast Foods") %>% 
+  filter(mfg_name != "") %>%
+  filter(mfg_name %in% c("Burger King Corporation", "Chick-Fil-A", "Domino's Pizza, LLC", "Kentucky Fried Chicken", "McDonald's Corporation", "Pizza Hut, Inc.", "Popeyes Chicken and Biscuits", "Subway", "Taco Bell Corp.", "Wendy's International, Inc.")) %>% 
+  drop_na(energy_kcal:fiber_g)
+
+```
+
+#### Step 2 - Perform PCA analysis on the nutritional values of fast food manufacturers
+```{r}
+# perform PCA on fast foods subset of data
+fast_foods_pca <- fast_foods_nutrients %>% 
+  select(energy_kcal:fiber_g) %>% 
+  drop_na() %>% 
+  scale() %>% 
+  prcomp()
+  
+fast_foods_pca$rotation
+```
+
+#### Step 3 - Create a biplot to display PCA results
+```{r}
+autoplot(fast_foods_pca,
+         data = fast_foods_nutrients,
+         colour = 'mfg_name',
+         loadings = TRUE,
+         loadings.label = TRUE)+
+  theme_bw() +
+  labs(title = "Principal Components Analysis (PCA) of the nutritional value of fast foods",
+       color = "Fast Food Manufacturer",
+       caption = "Biplot showing the results of a principal compenents analysis (PCA) comparing the nutritional value of food items from \nmajor American fast food manufacturing chains. The PCA analyzed 6 variables of food nutrient information (calories, \nprotein, fat, sugar, carbohydrates, and fiber). Data source: USDA FoodData Central, 2020.") +
+  theme(plot.caption = element_text(hjust = 0))
+```
+
+### Major takeaways from PCA biplot
+
+- The nutrional variables that are the most correlated are the amount of carbohydrates and fiber (both in grams) contained in fast food items. These are nearly perfectly correlated, as there is about a 0° difference between those two vectors on the biplot.
+- The biplot indicates that the amount of calories (in kcal) and fat content (in grams) in fast food items are also closely correlated, though not as much as carbs and fiber.
+- The protein content (in grams) of a fast food item is closely **not** correlated with both the sugar content (in grams) and the carbohydrates/fiber content (in grams), as those vectors in the biplot are closest to 180° difference from each other. It appears that the sugar content is slightly more closely not correlated with protein content. These results are consistent with expectations that many high protein items (like burgers or other meat products) wouldn't have much sugar content, and high sugar items (like desserts) wouldn't have much protein.
+- There seems to be no strong correlations (about 90° difference between vectors) between both fat content and carbs/fiber, and calories and protein content among fast food items. 
+- The biplot shows many similar observations between food items served by Kentucky Fried Chicken (KFC) and Popeyes Chicken and Biscuits. These are the blue (Popeyes) and green (KFC) points which often overlap along the upper right/right side of the biplot (between 0.1-0.15 on the PC1 axis and -0.05-0.2 on the PC2 axis). It makes sense that these observations are similar in multivariate space given that both fast food manufacturers primarily sell fried chicken products.
+- For the same reason, observations of items served by Domino's Pizza and Pizza Hut are also similar on this biplot. There are many of these overlapping points, but the clearest is the small cluster of lighter blue (Pizza Hut) and gold (Domino's) points at about (0.0, -0.08) on the PC1, PC2 axes.
+- A somewhat surprising pair of similar observations is the red (Burger King) and blue (Popeyes) points that overlap at about (-0.05, -0.2) on the biplot's axes. It is uncertain what food items these points correspond to. However, considering this red point is far away from the other Burger King observations and the blue point far from other Popeyes observations, this is not one of the primary food items ordered at these chains. Perhaps it is a side order common to both manufacturers, like French fries.
+
+#### Data Source Citation
+
+U.S. Department of Agriculture, Agricultural Research Service. FoodData Central, 2019. https://fdc.nal.usda.gov.

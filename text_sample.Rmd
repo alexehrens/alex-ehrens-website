@@ -1,20 +1,141 @@
 ---
-title: "Portfolio"
+title: "Text Analysis"
 description: |
-  Examples of my coding skills
+  An example of my text analysis and coding skills - analyzing and visualizing word frequency and sentiment for each character in 'A Game of Thrones' by George R.R. Martin.
+author:
+  - name: Alex Ehrens
+date: "`r Sys.Date()`"
+output: 
+  distill::distill_article:
+    code_folding: hide
 ---
 
-# Text Wrangling and Analysis in R
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
-### Word Frequency by each POV Character's Chapters
-```{r,echo=FALSE, message=FALSE}
-
-knitr::include_graphics("got_word_frequency.jpg")
+# attach packages
+library(tidyverse)
+library(here)
+library(tidytext)
+library(textdata)
+library(pdftools)
+library(ggwordcloud)
 ```
 
-### Sentiment Analysis of Words in each POV Character's Chapters
-```{r, echo=FALSE, message=FALSE}
-knitr::include_graphics("got_sentiment_analysis.jpg")
+### Part 1. Read in and wrangle A Game of Thrones text 
+
+```{r, cache=TRUE}
+# read in pdf of text
+got_text <- pdf_text(here("text_analysis_files", "A-Game-of-Thrones-George-RR-Martin.pdf"))
+
+# wrangle text into tidy format
+got_tidy <- data.frame(got_text) %>% 
+  mutate(text_full = str_split(got_text, pattern = "\\n")) %>% 
+  unnest(text_full) %>%
+  mutate(text_full = str_trim(text_full))
+
+# each chapter in A Game of Thrones is told from the perspective of a certain character, so I'm creating a list of characters with point-of-view chapters (including the Prologue)
+pov_characters <- c("PROLOGUE", "BRAN", "CATELYN", "DAENERYS", "EDDARD", "JON", "ARYA", "TYRION", "SANSA")
+
+# make data frame of A Game of Thrones text organized into each POV character's chapter
+got_df <- got_tidy %>% 
+  slice(-(1:125)) %>%
+  slice(-(25827:26282)) %>% 
+  mutate(pov = case_when(
+    str_detect(text_full, paste(pov_characters, collapse = "|")) ~ text_full, # detecting strings that include any of the POV character names 
+    TRUE ~ NA_character_
+  )) %>% 
+  fill(pov) %>% 
+  mutate(pov = str_to_title(pov))
+
+# get tokens of each word of the text, still organized by POV character
+got_tokens <- got_df %>% 
+  unnest_tokens(word, text_full) %>% 
+  select(-got_text)
+
+# remove stop words from the stop_words lexicon
+got_nonstop_words <- got_tokens %>% 
+  anti_join(stop_words)
 ```
 
-**To see my code for producing these plots**, check out my [Github repository](https://github.com/alexehrens/esm244_asst3/tree/main/task3)
+### Part 2. Counts of the most frequently used words in each character's Point-of-View (POV) chapters
+
+**For those who have not read the Game of Thrones book series by George RR Martin:** In these books, chapters are organized by the name of a different character instead of being organized by numbers or titles. The story in each chapter is told from the perspective of the character whose name is used as the chapter title. For example, the chapters titled "BRAN" are told from Bran's point of view, meaning Bran is the POV character for that chapter. Throughout the book, there are multiple chapters for each of the POV characters. This analysis groups word frequency by POV character, not by individual chapter, meaning that results describe total word frequency for each POV character's entire story arc in the A Game of Thrones book.
+
+```{r}
+# count frequency of words by POV character - and remove Prologue chapter
+got_nonstop_counts <- got_nonstop_words %>% 
+  count(pov, word) %>% 
+  filter(pov != "Prologue")
+
+# remove character names or titles (like ser/lord), as those comprise a lot of the most frequently-used words 
+names <- c("ned", "jon", "arya", "sansa", "bran", "robb", "catelyn", "ser", "lord", "dany", "khal", "drogo", "jorah", "robert", "sansa", "joffrey", "tyrion", "stark", "bronn", "septa", "luwin", "hodor", "littlefinger", "sam", "lannister", "tywin", "syrio", "eddard")
+nonstop_no_names_counts <- got_nonstop_counts %>% 
+  filter(!(str_detect(word, paste(names, collapse = "|"))))
+
+# pull out the top 5 most frequently used words in each character's chapters
+top_5_words <- nonstop_no_names_counts %>% 
+  group_by(pov) %>% 
+  arrange(-n) %>% 
+  slice(1:5) %>% 
+  mutate(house = case_when(
+    pov %in% c("Arya", "Bran", "Catelyn", "Eddard", "Sansa") ~ "House Stark",
+    pov == "Daenerys" ~ "House Targaryen",
+    pov == "Tyrion" ~ "House Lannister",
+    pov == "Jon" ~ "Night's Watch"
+  ))
+
+# plot each character's top 5 most frequently used words
+ggplot(data = top_5_words, aes(x = fct_reorder(word, n), y = n)) +
+  geom_col(aes(fill = house)) +
+  scale_fill_manual(values = c("gold2", "darkgrey", "red4", "Black")) +
+  facet_wrap(~pov, scales = "free") +
+  coord_flip()+
+  theme_bw() +
+  theme(legend.position = c(0.85, 0.13)) +
+  theme(legend.title = element_blank()) +
+  labs(title = "Top 5 Most Frequent Words for each POV Character in A Game of Thrones",
+       y = "Count",
+       x = "Words",
+       caption = "Figure 1 - A list of the 5 most frequently used words (not including stop words or character names/common titles) in \nA Game of Thrones by George RR Martin, grouped by each point-of-view characters' chapters. The fill color for each \ncharacter represents the color of the house to which they belong in the Game of Thrones universe.")+
+  theme(plot.caption = element_text(hjust = 0))
+```
+
+### Part 3. Sentiment Analysis using afinn lexicon
+
+Again, the sentiment analysis will be conducted by grouping all of the chapters told by each character's POV together for the entire book. This will provide an analysis of how rough of a time each main character had throughout A Game of Thrones (prediction: given the nature of these stories, it's probably going to be very negative for everyone). 
+
+```{r}
+# join got words dataset with matching words from afinn lexicon
+got_afinn <- got_nonstop_words %>% 
+  filter(pov != "Prologue") %>% 
+  inner_join(get_sentiments("afinn"))
+
+afinn_counts <- got_afinn %>% 
+  count(pov, value)
+
+afinn_means <- got_afinn %>% 
+  group_by(pov) %>% 
+  summarize(mean_afinn = mean(value)) %>% 
+  mutate(house = case_when(
+    pov %in% c("Arya", "Bran", "Catelyn", "Eddard", "Sansa") ~ "House Stark",
+    pov == "Daenerys" ~ "House Targaryen",
+    pov == "Tyrion" ~ "House Lannister",
+    pov == "Jon" ~ "Night's Watch"
+  ))
+
+ggplot(data = afinn_means, 
+       aes(x = fct_reorder(pov, -mean_afinn), y = mean_afinn, fill = house)) +
+  scale_fill_manual(values = c("gold2", "darkgrey", "red4", "Black")) +
+  geom_col() +
+  coord_flip() +
+  theme_bw() +
+  theme(legend.title = element_blank(),
+        plot.caption = element_text(hjust = 0)) +
+  labs(title = "Sentiment Analysis of words in each POV character's chapters in \nA Game of Thrones",
+       y = "Mean Sentiment Value (from the 'afinn' lexicon')",
+       x = "Character Name", 
+       caption = "Figure 2 - The results of a sentiment analysis of words used in each POV character's chapters in A Game of Thrones \nby George RR Martin. The sentiment analysis uses the 'afinn' lexicon, which assigns a value from -5 to +5 for each \nword based on how negative or positive the meaning of that word is. The mean value for all words in each character's \nchapters provides a comparison of how negative the story arcs of each POV character are.")
+```
+
+**Results:** it appears that of all the POV characters, Jon Snow had the most negative mean sentiment value of words used in his chapters throughout A Game of Thrones. While all of the other characters also had overall negative mean sentiment scores, Jon's chapters had the most negative value (`r round(afinn_means$mean_afinn[6], 2)`). A lot of unfortunate things happen to every character in this book, but it seems from this sentiment analysis that Jon Snow's story arc is most unfortunate. Maybe that's why he's always brooding.

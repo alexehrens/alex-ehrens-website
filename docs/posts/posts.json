@@ -13,8 +13,8 @@
     "categories": [],
     "contents": "\n\n\nhide\n\n# there are many rasters to read in, so want to stack them into one raster\nsa_files <- list.files(path = \"sensitivity_iterations\", pattern = \"*tif\", full.names = TRUE)\n\nsa_stack <- raster::stack(sa_files)\n\n# write raster stack\n#writeRaster(sa_stack, filename = \"sensitivity_analysis_stack.tif\", options = \"INTERLEAVE=BAND\", overwrite = TRUE)\n\n\n\n\n\nhide\n\n # create a function to determine whether a species is present (value >0.6) or not in a given location\nis_present <- function(x, thresh = 4){\n  y <- ifelse(x >= thresh, 1, 0)\n  return(y)\n}\n\n# run the function using the stack of rasters\nsa_good <- calc(sa_stack, fun = is_present)\n\nearth <- ne_countries(scale = \"medium\", returnclass = \"sf\") %>% \n  st_as_sf()\n\n# sum to find the total richness of species in each raster cell\nsa_total <- calc(sa_good, fun = sum, na.rm = TRUE) %>% \n  projectRaster(crs = crs(earth))\n\n# exploratory plot of the cetacean species richness raster\n#plot(sa_total)\n\n\n\n\n\nhide\n\n# turn raster stack into data frame for plotting and mutate a column with the sum of present species\nsa_df <- rasterToPoints(sa_total) %>% \n  as.data.frame()\n\n# set 0 values for sum to NA and then remove those cells so they don't show up on top of coastline map\nsa_df$layer[sa_df$layer <= 0] <- NA\n\nsa_df <- sa_df %>% \n  na.omit(layer)\n\n#st_crs(earth)\n#t_crs(sa_total)\n\nggplot() +\n  geom_sf(data = earth, fill = \"white\") +\n  coord_sf(xlim = c(-120.45,-119.715), ylim = c(36.8,37.18),\n           expand = 0) +\n  geom_tile(data = sa_df, aes(x = x, y = y, fill = layer)) +\n  scale_fill_gradientn(colors = c(\"firebrick\", \"orange\", \"gold\", \"lightgreen\", \"darkgreen\")) +\n  theme_bw()\n\n\n\n\n\n\n\n",
     "preview": "posts/2021-03-09-post2gpsensitivityanalysis/post2gpsensitivityanalysis_files/figure-html5/unnamed-chunk-3-1.png",
-    "last_modified": "2021-03-09T18:17:13-08:00",
-    "input_file": "post2gpsensitivityanalysis.utf8.md"
+    "last_modified": "2021-03-09T18:17:22-08:00",
+    "input_file": {}
   },
   {
     "path": "posts/2021-02-06-welcome/",

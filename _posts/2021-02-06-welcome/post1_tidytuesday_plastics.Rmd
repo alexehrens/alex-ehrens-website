@@ -27,7 +27,7 @@ library(wesanderson)
 I would like to present my submission for Tidy Tuesday (from 1/26), which was a dataset of global plastics pollution. I used the maptools package to get the "wrld_simpl" dataset with geometries for every country and then used sf to transform it into a spatial dataframe. I then joined this to the plastic pollution dataset by country name using [this method](https://github.com/Z3tt/TidyTuesday/blob/master/R/2019_21_PlasticWaste.Rmd) from another Tidy Tuesday coder I noticed that I had to manually change some of the country names (like the U.S.) so that the datasets joined properly. Then for the coloring, I used the `{wesanderson}` package by [karthik](https://github.com/karthik/wesanderson) and found a color palette from The Life Aquatic with Steve Zissou. I didn't like how the countries without plastics data wouldn't show up on the map so I plotted the `wrld_simpl` country polygons in the background to fill out the map. I'm very glad with how this turned out!
 
 ### Read in Tidy Tuesday plastics data
-```{r}
+```{r, message=FALSE}
 tuesdata <- tidytuesdayR::tt_load('2021-01-26')
 
 plastics <- tuesdata$plastics
