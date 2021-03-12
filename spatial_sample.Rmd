@@ -10,6 +10,8 @@ output:
     code_folding: hide
 ---
 
+This example showcases skills that I have learned in analyzing and visualizing spatial data in Rstudio. I performed a spatial analysis of the distribution of oil spill locations in California from a 2008 dataset. I first explored oil spill locations and whether they occurred on land, fresh water, or in the ocean using an interactive `tmap`. Then I pulled in another spatial dataset containing boundaries for every California county and joined it to the oil spill location dataset. I displayed counts of oil spills per county on a static chloropleth map using `ggplot()` and `geom_sf()`. This provided a spatial distribution of the California counties where the most oil spills occurred in 2008.
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
@@ -80,15 +82,23 @@ spill_counts <- spill_county_join %>%
   count(name)
 ```
 
-```{r}
+```{r, out.width="100%"}
 # plot chloropleth of oil spill counts by county
 ggplot(data = spill_counts) +
-  geom_sf(aes(fill = n), color = "white", size = 0.1) +
+  geom_sf(aes(fill = n), color = "white", size = 0.2) +
   scale_fill_gradientn(colors = c("lightgray","orange","red")) +
-  theme_minimal() +
+  theme_void() +
   labs(title = "Chloropleth of oil spill counts by county in California",
        subtitle = "Data from 2008",
        fill = "Number of oil \nspills by county",
        caption = "A chloropleth describing the spatial distribution and counts of oil spill events that occurred in each \nCalifornia county in 2008. Data from the CDFW Oil Spill Incident Tracking dataset.") +
   theme(plot.caption = element_text(hjust = 0))
 ```
+
+### Results:
+
+The greatest number of oil spills in 2008 occurred in Los Angeles County, which reached over 300 spill incidents. This appears to be significantly higher than all of the other counties, but in general the urban parts of the state tend to have more oil spill incidents. Some of the counties that appear in orange are where major cities or metropolitan areas like San Diego, Sacramento, or the Bay Area are located. This is expected, as greater populations and more industry in a county likely results in more oil use and greater chance of oil spills to occur.
+
+### Data citation:
+
+California Department of Fish and Wildlife. Oil Spill Incident Tracking, 2008. [https://gis.data.ca.gov/datasets/7464e3d6f4924b50ad06e5a553d71086_0/data](https://gis.data.ca.gov/datasets/7464e3d6f4924b50ad06e5a553d71086_0/data)

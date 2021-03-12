@@ -73,7 +73,7 @@ world_total <- wrld_simpl %>%
 ```
 
 ### Map total plastics production by country
-```{r}
+```{r, out.width="100%"}
 palette <- wes_palette("Zissou1", type = "continuous")
 
 ggplot() +

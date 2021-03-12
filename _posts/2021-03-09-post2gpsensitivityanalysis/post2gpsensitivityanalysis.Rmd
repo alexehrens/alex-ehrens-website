@@ -11,6 +11,7 @@ output:
     code_folding: hide
 ---
 
+The last step of the Flood Forward project was to perform a sensitivity analysis to determine how the spatial distribution of priority sites would change with changes in each of the analyses variables. In this analysis, each variable for both flood risk and ecosystem analyses were set to either 0% or 100% weighting to test how that change impacted final site recommendation results. Since there were 5 flood risk and 3 ecosystem variables, each tested at 0% and 100% weighting, this analysis was performed a total of 16 times. Using raster analysis in Rstudio, the 16 outcomes were analyzed to determine how many times each raster cell appeared as a high priority site. The numbers reported in the figure below are the total number of times a given cell resulted in a high priority score, ranging from 0 to 16. Sites with scores of 16 consistently showed up as the 'best' sites for multiple-benefit groundwater recharge projects no matter how any of the input variables were changed. Those sites are considered the top and most recommended sites in Madera County for groundwater recharge projects with flood risk reduction and ecosystem enhancement benefits.
 
 ```{r setup, include=FALSE, warning=FALSE, message=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
@@ -26,6 +27,7 @@ library(rnaturalearthdata)
 library(rgeos)
 ```
 
+### 1) Stack rasters of sensitivity analysis iterations
 ```{r}
 # there are many rasters to read in, so want to stack them into one raster
 sa_files <- list.files(path = "sensitivity_iterations", pattern = "*tif", full.names = TRUE)
@@ -35,6 +37,10 @@ sa_stack <- raster::stack(sa_files)
 # write raster stack
 #writeRaster(sa_stack, filename = "sensitivity_analysis_stack.tif", options = "INTERLEAVE=BAND", overwrite = TRUE)
 ```
+
+### 2) Process rasters
+
+In this step, a function was created which set a threshold for determining which raster cells would be considered "high priority" for siting multiple-benefit groundwater recharge projects. That function was run for the stack of rasters, leaving high priority sites with a value of 1 and low priority sites with a value of 0. Then for each grid cell, a sum was calculated across all 16 iterations to find out how often each grid cell appeared as a high priority site throughout the sensitivity analysis. 
 
 ```{r, cache=TRUE, results=FALSE}
  # create a function to determine whether a species is present (value >0.6) or not in a given location
@@ -57,7 +63,8 @@ sa_total <- calc(sa_good, fun = sum, na.rm = TRUE) %>%
 #plot(sa_total)
 ```
 
-```{r}
+### 3) Turn results into dataframe and plot
+```{r, out.width="100%"}
 # turn raster stack into data frame for plotting and mutate a column with the sum of present species
 sa_df <- rasterToPoints(sa_total) %>% 
   as.data.frame()
@@ -80,3 +87,7 @@ ggplot() +
   theme_bw()
 
 ```
+
+### Results:
+
+The sites with scores of 16 out of 16 were those that were classified as high priority no matter how any of the input variables were changed. These sites were considered to be the best sites for locating multiple-benefit recharge projects, as they would be high priority no matter how data inputs or priorities could be altered in the real world. These locations are recommended as the first sites to consider when water managers in Madera County make decisions on implementing groundwater recharge projects with flood risk reduction and ecosystem enhancement benefits.

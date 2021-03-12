@@ -91,8 +91,8 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 
 
   <!--  https://schema.org/Article -->
-  <meta property="article:published" itemprop="datePublished" content="2021-03-10"/>
-  <meta property="article:created" itemprop="dateCreated" content="2021-03-10"/>
+  <meta property="article:published" itemprop="datePublished" content="2021-03-11"/>
+  <meta property="article:created" itemprop="dateCreated" content="2021-03-11"/>
   <meta name="article:author" content="Alex Ehrens"/>
 
   <!--  https://developers.facebook.com/docs/sharing/webmasters#markup -->
@@ -111,7 +111,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   <!--radix_placeholder_rmarkdown_metadata-->
 
   <script type="text/json" id="radix-rmarkdown-metadata">
-  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","author","date","output"]}},"value":[{"type":"character","attributes":{},"value":["Text Analysis"]},{"type":"character","attributes":{},"value":["An example of my text analysis and coding skills - analyzing and visualizing word frequency and sentiment for each character in 'A Game of Thrones' by George R.R. Martin.\n"]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name"]}},"value":[{"type":"character","attributes":{},"value":["Alex Ehrens"]}]}]},{"type":"character","attributes":{},"value":["2021-03-10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["code_folding"]}},"value":[{"type":"character","attributes":{},"value":["hide"]}]}]}]}
+  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","author","date","output"]}},"value":[{"type":"character","attributes":{},"value":["Text Analysis"]},{"type":"character","attributes":{},"value":["An example of my text analysis and coding skills - analyzing and visualizing word frequency and sentiment for each character in 'A Game of Thrones' by George R.R. Martin.\n"]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name"]}},"value":[{"type":"character","attributes":{},"value":["Alex Ehrens"]}]}]},{"type":"character","attributes":{},"value":["2021-03-11"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["code_folding"]}},"value":[{"type":"character","attributes":{},"value":["hide"]}]}]}]}
   </script>
   <!--/radix_placeholder_rmarkdown_metadata-->
   <!--radix_placeholder_navigation_in_header-->
@@ -2367,7 +2367,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!--radix_placeholder_front_matter-->
 
 <script id="distill-front-matter" type="text/json">
-{"title":"Text Analysis","description":"An example of my text analysis and coding skills - analyzing and visualizing word frequency and sentiment for each character in 'A Game of Thrones' by George R.R. Martin.","authors":[{"author":"Alex Ehrens","authorURL":"#","affiliation":"&nbsp;","affiliationURL":"#","orcidID":""}],"publishedDate":"2021-03-10T00:00:00.000+00:00","citationText":"Ehrens, 2021"}
+{"title":"Text Analysis","description":"An example of my text analysis and coding skills - analyzing and visualizing word frequency and sentiment for each character in 'A Game of Thrones' by George R.R. Martin.","authors":[{"author":"Alex Ehrens","authorURL":"#","affiliation":"&nbsp;","affiliationURL":"#","orcidID":""}],"publishedDate":"2021-03-11T00:00:00.000+00:00","citationText":"Ehrens, 2021"}
 </script>
 
 <!--/radix_placeholder_front_matter-->
@@ -2386,7 +2386,6 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <a href="text_sample.html">Text Analysis</a>
 <a href="spatial_sample.html">Spatial Analysis</a>
 <a href="blog.html">Blog Posts</a>
-<a href="about.html">About</a>
 <a href="javascript:void(0);" class="nav-toggle">&#9776;</a>
 </div>
 </nav>
@@ -2405,10 +2404,11 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <div class="d-byline">
   Alex Ehrens  
   
-<br/>2021-03-10
+<br/>2021-03-11
 </div>
 
 <div class="d-article">
+<p>I performed a text analysis on the book, A Game of Thrones, the first installment of the A Song of Ice and Fire series written by George R.R. Martin. I wanted to determine the most frequently-used words in each main character’s chapters and perform a word sentiment analysis on their chapters to compare which of the main characters had the hardest time throughout the events of the first book.</p>
 <h3 id="part-1.-read-in-and-wrangle-a-game-of-thrones-text">Part 1. Read in and wrangle A Game of Thrones text</h3>
 <div class="layout-chunk" data-layout="l-body">
 <details>
@@ -2490,7 +2490,7 @@ hide
   <span class='fu'>theme_bw</span><span class='op'>(</span><span class='op'>)</span> <span class='op'>+</span>
   <span class='fu'>theme</span><span class='op'>(</span>legend.position <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.85</span>, <span class='fl'>0.13</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span>
   <span class='fu'>theme</span><span class='op'>(</span>legend.title <span class='op'>=</span> <span class='fu'>element_blank</span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'>labs</span><span class='op'>(</span>title <span class='op'>=</span> <span class='st'>"Top 5 Most Frequent Words for each POV Character in A Game of Thrones"</span>,
+  <span class='fu'>labs</span><span class='op'>(</span>title <span class='op'>=</span> <span class='st'>"Top 5 Most Frequent Words for each POV Character in A Game of \nThrones"</span>,
        y <span class='op'>=</span> <span class='st'>"Count"</span>,
        x <span class='op'>=</span> <span class='st'>"Words"</span>,
        caption <span class='op'>=</span> <span class='st'>"Figure 1 - A list of the 5 most frequently used words (not including stop words or character names/common titles) in \nA Game of Thrones by George RR Martin, grouped by each point-of-view characters' chapters. The fill color for each \ncharacter represents the color of the house to which they belong in the Game of Thrones universe."</span><span class='op'>)</span><span class='op'>+</span>
@@ -2498,7 +2498,7 @@ hide
 </code></pre>
 </div>
 </details>
-<p><img src="text_sample_files/figure-html5/unnamed-chunk-2-1.png" width="624" /></p>
+<p><img src="text_sample_files/figure-html5/unnamed-chunk-2-1.png" width="100%" /></p>
 </div>
 <h3 id="part-3.-sentiment-analysis-using-afinn-lexicon">Part 3. Sentiment Analysis using afinn lexicon</h3>
 <p>Again, the sentiment analysis will be conducted by grouping all of the chapters told by each character’s POV together for the entire book. This will provide an analysis of how rough of a time each main character had throughout A Game of Thrones (prediction: given the nature of these stories, it’s probably going to be very negative for everyone).</p>
@@ -2541,9 +2541,10 @@ hide
 </code></pre>
 </div>
 </details>
-<p><img src="text_sample_files/figure-html5/unnamed-chunk-3-1.png" width="624" /></p>
+<p><img src="text_sample_files/figure-html5/unnamed-chunk-3-1.png" width="100%" /></p>
 </div>
-<p><strong>Results:</strong> it appears that of all the POV characters, Jon Snow had the most negative mean sentiment value of words used in his chapters throughout A Game of Thrones. While all of the other characters also had overall negative mean sentiment scores, Jon’s chapters had the most negative value (-0.86). A lot of unfortunate things happen to every character in this book, but it seems from this sentiment analysis that Jon Snow’s story arc is most unfortunate. Maybe that’s why he’s always brooding.</p>
+<h3 id="results">Results:</h3>
+<p>It appears that of all the POV characters, Jon Snow had the most negative mean sentiment value of words used in his chapters throughout A Game of Thrones. While all of the other characters also had overall negative mean sentiment scores, Jon’s chapters had the most negative value (-0.86). A lot of unfortunate things happen to every character in this book, but it seems from this sentiment analysis that Jon Snow’s story arc is most unfortunate. Maybe that’s why he’s always brooding.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->

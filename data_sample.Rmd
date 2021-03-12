@@ -55,7 +55,7 @@ fast_foods_pca$rotation
 ```
 
 #### Step 3 - Create a biplot to display PCA results
-```{r}
+```{r, out.width="100%"}
 autoplot(fast_foods_pca,
          data = fast_foods_nutrients,
          colour = 'mfg_name',
@@ -80,4 +80,4 @@ autoplot(fast_foods_pca,
 
 #### Data Source Citation
 
-U.S. Department of Agriculture, Agricultural Research Service. FoodData Central, 2019. https://fdc.nal.usda.gov.
+U.S. Department of Agriculture, Agricultural Research Service. FoodData Central, 2019. [https://fdc.nal.usda.gov.](https://fdc.nal.usda.gov.)
